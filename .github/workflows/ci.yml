@@ -25,9 +25,11 @@ jobs:
                     esac
                   done
                   exit 1
+            - name: Generate the SSL keys for JWT 
+              run: docker compose exec php bin/console lexik:jwt:generate-keypair --skip-if-exists
             - name: Check HTTP reachability
               run: curl http://localhost
             - name: Check HTTPS reachability
               run: curl -k https://localhost
             - name: Run PHPUnit tests
-              run: docker compose exec php php bin/phpunit
+              run: docker compose run php php bin/phpunit
