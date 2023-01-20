@@ -1,6 +1,6 @@
 # symfony-ddd-tdd-api-example
 
-![CI](https://github.com/florianajir/tekyn-test/workflows/CI/badge.svg)
+![CI](https://github.com/florianajir/symfony-ddd-tdd-api-example/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/florianajir/symfony-ddd-tdd-api-example/branch/main/graph/badge.svg)](https://codecov.io/gh/florianajir/symfony-ddd-tdd-api-example)
 
 ## Getting Started
