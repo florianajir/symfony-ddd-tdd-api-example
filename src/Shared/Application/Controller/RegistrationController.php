@@ -19,7 +19,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class RegistrationController extends AbstractController
 {
-    #[OA\Tag('user', 'Register a user')]
+    /**
+     * Register a user
+     *
+     * Persist a user in database to be able to retrieve a jwt using login endpoint.
+     * Use the jwt token in authorization http header to access restricted endpoint.
+     */
+    #[OA\Tag('user')]
     #[OA\Response(response: 202, description: 'Registration is processing')]
     #[OA\Response(response: 400, description: 'Invalid registration data')]
     #[OA\RequestBody(

@@ -4,24 +4,9 @@ namespace App\Tests\Functional;
 
 use App\Shared\Domain\Entity\User;
 use App\Shared\Domain\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class RegistrationTest extends WebTestCase
+class RegistrationTest extends AuthenticatedTestCase
 {
-    private const TEST_EMAIL = 'test@pm.me';
-    private const TEST_PASSWORD = 'foobar';
-    private KernelBrowser $client;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        self::ensureKernelShutdown();
-        $this->client = static::createClient();
-        $this->client->setServerParameter('CONTENT_TYPE', 'application/json');
-    }
-
     public function testRegistrationWithWrongEmail(): void
     {
         $this->client->request(
@@ -86,35 +71,5 @@ class RegistrationTest extends WebTestCase
         $this->assertArrayHasKey('token', $data);
 
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
-        // TODO test jwt validity on restricted endpoint
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        /** @var UserRepository $userRepository */
-        $userRepository = static::getContainer()->get(UserRepository::class);
-        $testUser = $userRepository->findByEmail(self::TEST_EMAIL);
-        if (null !== $testUser) {
-            $userRepository->remove($testUser, true);
-        }
-    }
-
-    private function getUserJsonFixture($email = self::TEST_EMAIL, $password = self::TEST_PASSWORD): string
-    {
-        return json_encode(compact('email', 'password'));
-    }
-
-    private function createUserFixture($email = self::TEST_EMAIL, $password = self::TEST_PASSWORD)
-    {
-        $user = new User();
-        $user->setEmail($email);
-        $hashedPassword = static::getContainer()->get(UserPasswordHasherInterface::class)
-            ->hashPassword(
-                $user,
-                $password
-            );
-        $user->setPassword($hashedPassword);
-        static::getContainer()->get(UserRepository::class)->save($user, true);
     }
 }

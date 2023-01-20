@@ -10,7 +10,14 @@ framework:
     #fragments: true
     php_errors:
         log: true
-
+        
+    http_client:
+        scoped_clients:
+            off.fr.client:
+                base_uri: 'https://fr.openfoodfacts.org'
+                headers:
+                    Accept: 'application/json'
+                    User-Agent: 'symfony-ddd-tdd-api - Server - Version 1.0'
 when@test:
     framework:
         test: true
