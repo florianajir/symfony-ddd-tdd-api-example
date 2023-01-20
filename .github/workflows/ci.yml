@@ -1,35 +1,40 @@
 name: CI
 
 on:
-    push:
-    pull_request:
+  push:
+  pull_request:
 
 jobs:
-    build:
-        name: Docker build
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Pull images
-              run: docker compose pull
-            - name: Start services
-              run: docker compose up --build -d
-            - name: Wait for services
-              run: |
-                  while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
-                    case $status in
-                      starting) sleep 1;;
-                      healthy) exit 0;;
-                      unhealthy) exit 1;;
-                    esac
-                  done
-                  exit 1
-            - name: Generate the SSL keys for JWT 
-              run: docker compose exec php bin/console lexik:jwt:generate-keypair --skip-if-exists
-            - name: Check HTTP reachability
-              run: curl http://localhost
-            - name: Check HTTPS reachability
-              run: curl -k https://localhost
-            - name: Run PHPUnit tests
-              run: docker compose run php php bin/phpunit
+  build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Pull images
+        run: docker compose pull
+      - name: Start services
+        run: docker compose up --build -d
+      - name: Wait for services
+        run: |
+          while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
+            case $status in
+              starting) sleep 1;;
+              healthy) exit 0;;
+              unhealthy) exit 1;;
+            esac
+          done
+          exit 1
+      - name: Generate the SSL keys for JWT
+        run: make ssl
+      - name: Check HTTP reachability
+        run: curl http://localhost
+      - name: Check HTTPS reachability
+        run: curl -k https://localhost
+      - name: Run PHPUnit tests
+        run: docker compose exec -T php bin/console doctrine:migrations:migrate --env=test --no-interaction && docker compose exec -T --env "XDEBUG_MODE=coverage" php bin/phpunit --coverage-clover coverage.xml
+      - name: codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unittests

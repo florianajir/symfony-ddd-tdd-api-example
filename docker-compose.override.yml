@@ -13,7 +13,7 @@ services:
       #- /srv/app/vendor
     environment:
       # See https://xdebug.org/docs/all_settings#mode 
-      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      XDEBUG_MODE: "${XDEBUG_MODE:-coverage}"
     extra_hosts:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway
@@ -28,6 +28,8 @@ services:
 
 ###> doctrine/doctrine-bundle ###
   database:
+    volumes:
+      - ./docker/database:/docker-entrypoint-initdb.d
     ports:
-      - "3306"
+      - "3306:3306"
 ###< doctrine/doctrine-bundle ###

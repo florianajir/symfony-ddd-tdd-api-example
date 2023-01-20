@@ -4,6 +4,52 @@ nelmio_api_doc:
             title: Tekyn test
             description: An API to search and manage food products.
             version: 1.0.0
+        paths:
+            /api/doc.json:
+                get:
+                    tags: ['openapi']
+                    security: []
+                    summary: Get the OpenAPI documentation as json object
+                    
+            /api/login:
+                post:
+                    tags: ['user']
+                    summary: Get a jwt token by login with user credentials
+                    security: []
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        email:
+                                            type: string
+                                        password:
+                                            type: string
+                    responses:
+                        '200':
+                            description: Successful login
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            token:
+                                                type: string
+                        '401':
+                            description: Failed to login
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: 401
+                                            message:
+                                                type: string
+                                                example: Username could not be found
         components:
             securitySchemes:
                 Bearer:

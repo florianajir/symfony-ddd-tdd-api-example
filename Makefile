@@ -8,6 +8,7 @@ PHP_CONT = $(DOCKER_COMP) exec php
 PHP      = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY  = $(PHP_CONT) bin/console
+PHPUNIT  = $(PHP_CONT) bin/phpunit
 
 # Misc
 .DEFAULT_GOAL = help
@@ -40,7 +41,7 @@ composer: ## Run composer, pass the parameter "c=" to run a given command, examp
 	@$(COMPOSER) $(c)
 
 vendor: ## Install vendors according to the current composer.lock file
-vendor: c=install --prefer-dist --no-dev --no-progress --no-scripts --no-interaction
+vendor: c=install --prefer-dist --no-progress --no-scripts --no-interaction
 vendor: composer
 
 ## —— Symfony 🎵 ———————————————————————————————————————————————————————————————
@@ -51,7 +52,22 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 cc: c=c:c ## Clear the cache
 cc: sf
 
-## —— Configuration ———————————————————————————————————————————————————————————————
-
 ssl: c=lexik\:jwt\:generate-keypair --skip-if-exists ## Generate the SSL keys in config/jwt if not already generated
 ssl: sf
+
+database: c=doctrine\:database\:create --if-not-exists --no-interaction ## Create the database
+database: sf
+
+migrate: c=doctrine\:migrations\:migrate --no-interaction ## Migrate the database
+migrate: sf
+
+init: start vendor ssl database migrate ## Use init on first launch
+
+## —— Tests ———————————————————————————————————————————————————————————————————————
+
+test-init: c=doctrine\:migrations\:migrate --env=test --no-interaction ## Migrate the test database
+test-init: sf
+
+test: ## Run phpunit command
+	@$(PHPUNIT)
+
